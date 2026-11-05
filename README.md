@@ -1,58 +1,85 @@
 # dsh-bili-publisher
 
-独立的 DSH B 站内容发布插件。计划支持文字动态、图文动态、已有视频文件投稿，以及稿件状态查询。
+独立的 DSH B 站内容发布插件。当前开发版 `0.1.0-dev.0` 已实现**带配音和字幕的短视频制作预览**；B 站动态发布和视频投稿将在后续接入。
 
-**当前状态：项目初始化。** 已建立 DSH 插件入口、打包清单和开发文档；当前版本尚未注册发布工具，也尚未部署到服务器。版本 `0.0.0` 仅用于开发，npm 发布暂时关闭。
+助手负责选题、旁白和分镜，插件负责调用配置好的生图／配音服务，在后台合成成片。也支持使用服务器上的已有图片、视频片段和音频。
 
-## 用途
-
-助手负责选题、文案和素材准备，本插件负责账号校验、上传、提交及结果查询。
-
-插件可以独立安装，也可以与 `dsh-bili-whale` 配合使用。配合使用时，由养鱼助手调用发布工具，发布能力在本仓库独立维护。
-
-## 首版范围
+## 当前能力
 
 | 能力 | 状态 |
 | --- | --- |
-| DSH 插件入口和 bundle 清单 | 已建立骨架 |
-| 文字动态发布 | 待实现 |
-| 图文动态发布 | 待实现 |
-| 已有视频文件上传与投稿 | 待实现 |
-| 发布预览、历史记录、重复提交检查 | 待实现 |
-| 稿件结果与审核状态查询 | 待实现 |
-| 独立账号配置及现有登录态适配 | 待实现 |
+| DSH 原生模型工具与独立 CLI | 已实现 |
+| 分镜草稿和生成请求数量预览 | 已实现；准备草稿不调用外部服务 |
+| 可配置生图接口 | 已实现适配器，模拟接口测试通过，尚未使用真实密钥验证 |
+| 可配置配音接口 | 已实现适配器，模拟接口测试通过，尚未使用真实密钥验证 |
+| 文字卡片、已有图片／视频片段 | 已实现 |
+| 配音、字幕、轻微推拉镜头、固定时长合成 | 已实现，实际渲染测试通过 |
+| 后台任务、进度、取消、相同草稿避免重复制作 | 已实现 |
+| 视频预览页与下载 | 已实现；安装到 DSH Web 后需登录访问 |
+| B 站动态发布／视频投稿 | 待实现 |
 
-视频制作、配音、剪辑和定时自主创作暂列为后续能力。首版接收已有成品视频。
+当前版本未部署到服务器；没有注册实际 B 站发布工具。
 
-## 开发
+## 依赖与开发
 
-需要 Node.js 22 或更高版本。当前骨架没有第三方运行依赖。
+开发依赖中的 Zod 固定到已修复的 `4.6.6`；保留与目标 DSH 一致的 SDK 接口版本。
+
+需要 Node.js 22+、支持 `libx264`、`libass`／`subtitles` 的 FFmpeg、FFprobe，以及可渲染中文的字体。
 
 ```sh
-git clone https://github.com/1998yyh/dsh-bili-publisher.git
-cd dsh-bili-publisher
 npm ci
 npm run check
+npm test
 npm pack --dry-run
 ```
 
-`npm run check` 当前仅检查插件入口语法，功能实现后再补对应测试。
+真实渲染测试在找到 FFmpeg 和 FFprobe 时运行；找不到时会明确标记跳过。可通过 `FFMPEG`、`FFPROBE` 指定路径。CI 会安装这些依赖并运行实际合成测试。
 
-## 目录
+## 配置
 
-```text
-lib/                DSH 插件入口及后续业务模块
-tools/              命令行工具规划
-docs/architecture.md 插件边界与调用流程
-docs/deployment.md   服务器部署流程
-ROADMAP.md           分阶段开发任务
-cordis.patch.yml     DSH bundle 挂载声明
+参考 [config.example.json](examples/config.example.json)，在运行机器上保存配置，通过 `BILI_PUBLISHER_CONFIG` 或 `--config` 指定位置。默认读取 `$DSH_HOME/bili-publisher.config.json`，没有 `DSH_HOME` 时使用 `~/.dsh/`。
+
+- `dataDir`：草稿、生成素材、任务与成片的运行目录。
+- `mediaRoots`：允许导入已有素材的目录。输入应使用服务器绝对路径，符号链接也必须落在允许目录中。
+- `image` 和 `speech`：分别指定 `baseUrl`、`model` 和 `apiKeyEnv`，配音还需指定 `voice`。
+- 密钥放在对应环境变量中；配置只记录环境变量名称。密钥不会放进分镜、工具结果或任务配置快照。
+- `fontFamily`：中文字体名称，例如 Linux 的 `Noto Sans CJK SC`；部署前需安装字体。
+- `publicBaseUrl`：对外访问 DSH 的基础 URL；预览路由需要在同一认证入口下转发。
+
+首版支持 OpenAI 风格的 `images/generations`（返回 `data[0].b64_json`）和 `audio/speech`（返回 WAV）接口；不保证所有标为“兼容”的服务都直接可用。可用 `parameters` 设置受支持的额外参数，详见 [制作说明](docs/video-production.md)。
+
+## 用法
+
+[示例分镜](examples/storyboard.json) 描述四幕 40 秒竖屏视频。助手可以通过 DSH 工具提交相同格式。
+
+```sh
+node tools/publisher.mjs status --config /path/to/config.json
+node tools/publisher.mjs prepare --script examples/storyboard.json --config /path/to/config.json
+node tools/publisher.mjs render --draft <draftId> --config /path/to/config.json
+node tools/publisher.mjs job --id <jobId> --config /path/to/config.json
 ```
 
-## 安装与部署
+CLI 加 `--wait` 可以等待制作结束。渲染时才会调用生成服务，可能产生相应服务费用；本插件不自动重试生成请求。
 
-开发流程为：本地开发与验证 → 推送 GitHub → 服务器拉取指定版本 → 安装到 DSH 并重启。
+DSH 工具：`bili_publisher_status`、`bili_video_prepare`、`bili_video_render`、`bili_video_job`、`bili_video_cancel`。
 
-待首版实现并完成兼容验证后，使用 DSH 的本地目录插件安装方式部署。具体步骤和当前限制见 [部署说明](docs/deployment.md)。
+制作完成后返回 MP4、封面、SRT 和预览页面路径。在 DSH Web 中可通过任务预览链接播放、下载。制作预览不会提交到 B 站。
 
-账号凭据、草稿、发布历史和视频素材保存在使用机器的运行数据目录，不随源码发布。现阶段尚未选择开源许可证，`package.json` 标记为 `UNLICENSED`。
+## 无密钥本地演示
+
+macOS 可使用程序绘制卡片和系统中文配音验证完整制作流程，无需生图或配音密钥：
+
+```sh
+FFMPEG=/path/to/ffmpeg FFPROBE=/path/to/ffprobe node tools/demo.mjs --output /tmp/publisher-demo
+```
+
+演示的画面是程序绘制卡片，语音来自 macOS `say`；它不代表已完成真实 AI 生图接口联调。Linux 运行环境应配置配音接口。
+
+## 安装与架构
+
+- [服务器部署](docs/deployment.md)
+- [制作流程与已知限制](docs/video-production.md)
+- [架构](docs/architecture.md)
+- [开发计划](ROADMAP.md)
+
+插件可以独立使用，也可以由 `dsh-bili-whale` 的助手调用。运行资料与账号凭据独立于源码保存。项目许可证暂为 `UNLICENSED`，npm 发布暂时关闭。

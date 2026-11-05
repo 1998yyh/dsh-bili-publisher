@@ -1,0 +1,22 @@
+{
+  "dataDir": "/path/to/publisher-data",
+  "mediaRoots": ["/path/to/input-media"],
+  "ffmpeg": "ffmpeg",
+  "ffprobe": "ffprobe",
+  "fontFamily": "Noto Sans CJK SC",
+  "publicBaseUrl": "https://your-dsh.example/",
+  "image": {
+    "baseUrl": "https://your-image-service.example/v1",
+    "model": "your-image-model",
+    "apiKeyEnv": "BILI_PUBLISHER_IMAGE_API_KEY",
+    "size": "1024x1536",
+    "parameters": {}
+  },
+  "speech": {
+    "baseUrl": "https://your-speech-service.example/v1",
+    "model": "your-speech-model",
+    "voice": "your-voice",
+    "apiKeyEnv": "BILI_PUBLISHER_SPEECH_API_KEY",
+    "parameters": {}
+  }
+}
