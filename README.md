@@ -22,6 +22,8 @@
 
 ## 依赖与开发
 
+开发依赖中的 Zod 固定到已修复的 `4.6.6`；保留与目标 DSH 一致的 SDK 接口版本。
+
 需要 Node.js 22+、支持 `libx264`、`libass`／`subtitles` 的 FFmpeg、FFprobe，以及可渲染中文的字体。
 
 ```sh

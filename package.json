@@ -62,5 +62,8 @@
   },
   "bin": {
     "dsh-bili-publisher": "./tools/publisher.mjs"
+  },
+  "overrides": {
+    "zod": "4.6.6"
   }
 }

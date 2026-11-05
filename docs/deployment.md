@@ -5,7 +5,7 @@
 ## 准备
 
 1. 在目标机器安装 Node.js 22+、FFmpeg、FFprobe 和中文字体。FFmpeg 需支持 libx264 与 libass/subtitles。
-2. 克隆仓库，切换到已验证的 commit 或 tag，然后运行 `npm ci --omit=dev`。
+2. 克隆仓库，切换到已验证的 commit 或 tag，然后运行 `npm ci`。
 3. 参考 `examples/config.example.json` 配置运行目录、素材目录、字体、生图和配音模型。
 4. 将密钥写入 DSH 运行环境对应的环境变量，通过 `BILI_PUBLISHER_CONFIG` 指定配置文件。
 5. 先运行 `node tools/publisher.mjs status` 检查依赖和密钥是否配置；此命令不会验证服务账号额度或实际生成权限。
