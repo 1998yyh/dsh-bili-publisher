@@ -1,0 +1,29 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+*.log
+.DS_Store
+
+# Local environment and account credentials
+.env
+.env.*
+!.env.example
+credentials.json
+cookies.json
+*.pem
+*.key
+.dsh/
+.bili-ai/
+.local/
+data/
+
+# Drafts, publishing history, downloaded binaries and media are runtime data
+drafts/
+uploads/
+runtime/
+*.mp4
+*.mov
+*.mkv
+*.flv
+*.webm

@@ -1,0 +1,4 @@
+# DSH bundle declaration. The initial scaffold does not register publishing tools.
+- insert:
+    - id: dsh-bili-publisher
+      name: dsh-bili-publisher
