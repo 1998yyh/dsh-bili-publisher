@@ -1,6 +1,6 @@
 {
   "name": "dsh-bili-publisher",
-  "version": "0.0.0",
+  "version": "0.1.0-dev.0",
   "private": true,
   "description": "独立的 DSH B 站发布插件：文字与图文动态、视频投稿和稿件状态查询（开发中）。",
   "type": "module",
@@ -14,10 +14,14 @@
     "tools",
     "cordis.patch.yml",
     "README.md",
-    "docs"
+    "docs",
+    "examples",
+    "ROADMAP.md"
   ],
   "scripts": {
-    "check": "node --check lib/index.js"
+    "check": "node tools/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "publisher": "node tools/publisher.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -41,5 +45,22 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2"
+  },
+  "bin": {
+    "dsh-bili-publisher": "./tools/publisher.mjs"
   }
 }
